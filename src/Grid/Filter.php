@@ -70,7 +70,7 @@ class Filter
     /**
      * @var string
      */
-    protected $view = 'admin::filter.modal';
+    protected $view = 'admin::grid.filter';
 
     /**
      * @var string

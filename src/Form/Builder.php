@@ -472,7 +472,7 @@ class Builder
         if ($this->mode == self::MODE_EDIT) {
             $text = trans('admin.save');
         } else {
-            $text = trans('admin.submit');
+            $text = trans('admin.create');
         }
 
         return <<<EOT
