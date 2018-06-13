@@ -166,9 +166,31 @@ class Filter
         $this->removeIDFilterIfNeeded();
 
         foreach ($this->filters() as $filter) {
-            $conditions[] = $filter->condition($params);
-        }
+            $con = $filter->condition($params);
 
+            if(!is_null($con) && is_array($con)) {
+                foreach ($con as $key => $value) {
+                    if(!is_null($con[$key]) && is_array($con[$key])) {
+                        if($con[$key] == '$$')
+                            $con[$key] = '';
+                        foreach ($con[$key] as $key2 => $value2) {
+                            if($con[$key][$key2] == '$$')
+                                $con[$key][$key2] = '';
+                            if(!is_null($con[$key][$key2]) && is_array($con[$key][$key2])) {
+                                foreach ($con[$key][$key2] as $key3 => $value3) {
+                                    if($con[$key][$key2][$key3] == '$$')
+                                        $con[$key][$key2][$key3] = '';
+                                    print_r($con[$key][$key2][$key3]);
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+            $conditions[] = $con;
+        }
+        //print_r($conditions);
         return array_filter($conditions);
     }
 
