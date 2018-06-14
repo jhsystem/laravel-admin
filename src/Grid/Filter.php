@@ -180,7 +180,7 @@ class Filter
                                 foreach ($con[$key][$key2] as $key3 => $value3) {
                                     if($con[$key][$key2][$key3] == '$$')
                                         $con[$key][$key2][$key3] = '';
-                                    print_r($con[$key][$key2][$key3]);
+                                    //print_r($con[$key][$key2][$key3]);
                                 }
                             }
                         }
