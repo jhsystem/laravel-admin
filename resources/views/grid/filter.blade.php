@@ -7,6 +7,12 @@
                 {!! $filter->render() !!}
             @endforeach
 
+                <div class="form-inline">
+                    @foreach($filters2 as $filter)
+                        {!! $filter->render() !!}
+                    @endforeach
+                </div>
+
             <div class="btn-group btn-group-sm pull-right">
                 <button type="submit" class="btn btn-primary">{{ trans('admin.submit') }}</button>
                 <a href="{!! $action !!}" class="btn btn-warning" >{{ trans('admin.reset') }}</a>

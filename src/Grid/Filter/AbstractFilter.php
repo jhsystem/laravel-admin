@@ -81,17 +81,19 @@ abstract class AbstractFilter
      */
     protected $view = 'admin::filter.where';
 
+    protected $inline = false;
     /**
      * AbstractFilter constructor.
      *
      * @param $column
      * @param string $label
      */
-    public function __construct($column, $label = '')
+    public function __construct($column, $label = '', $inline = false)
     {
         $this->column = $column;
         $this->label = $this->formatLabel($label);
         $this->id = $this->formatId($column);
+        $this->inline = $inline;
 
         $this->setupDefaultPresenter();
     }
@@ -484,5 +486,10 @@ abstract class AbstractFilter
         }
 
         throw new \Exception('Method "'.$method.'" not exists.');
+    }
+
+    public function isInline()
+    {
+        return $this->inline;
     }
 }

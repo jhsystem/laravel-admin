@@ -274,11 +274,19 @@ $("#filter-modal .submit").click(function () {
 
 EOT;
         Admin::script($script);
-
+        $filters = array();
+        $filters2 = array();
+        foreach ($this->filters as $filter) {
+            if($filter->isInline())
+                $filters2[] = $filter;
+            else
+                $filters[] = $filter;
+        }
         return view($this->view)->with([
             'action'  => $this->action ?: $this->urlWithoutFilters(),
-            'filters' => $this->filters,
+            'filters' => $filters,
             'modalId' => $this->filterModalId,
+            'filters2' => $filters2,
         ]);
     }
 
