@@ -1,4 +1,6 @@
 <div class="form-group">
-    <label>{{$label}}</label>
+    @if($presenter->isLabel())
+        <label>{{$label}}</label>
+    @endif
     @include($presenter->view())
 </div>

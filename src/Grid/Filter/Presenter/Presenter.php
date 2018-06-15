@@ -11,6 +11,8 @@ abstract class Presenter
      */
     protected $filter;
 
+    protected $bLabel = true;
+
     /**
      * Set parent filter.
      *
@@ -55,5 +57,17 @@ abstract class Presenter
     public function variables() : array
     {
         return [];
+    }
+
+    public function isLabel()
+    {
+        return $this->bLabel;
+    }
+
+    public function disableLabel()
+    {
+        $this->bLabel = false;
+
+        return $this;
     }
 }
