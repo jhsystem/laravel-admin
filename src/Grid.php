@@ -171,12 +171,24 @@ class Grid
      */
     protected $footer;
 
+    public $width = 0;
     /**
      * Create a new grid instance.
      *
      * @param Eloquent $model
      * @param Closure  $builder
      */
+
+    public function setWidth($width)
+    {
+        $this->width = $width;
+    }
+
+    public function getWidth()
+    {
+        return $this->width;
+    }
+
     public function __construct(Eloquent $model, Closure $builder)
     {
         $this->keyName = $model->getKeyName();
