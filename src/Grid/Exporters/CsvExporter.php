@@ -23,7 +23,7 @@ class CsvExporter extends AbstractExporter
 
         response()->stream(function () {
             $handle = fopen('php://output', 'w');
-
+            fputs($handle, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
             $titles = [];
 
             $this->chunk(function ($records) use ($handle, &$titles) {
