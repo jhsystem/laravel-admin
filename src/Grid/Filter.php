@@ -2,10 +2,29 @@
 
 namespace Encore\Admin\Grid;
 
-use Encore\Admin\Facades\Admin;
 use Encore\Admin\Grid\Filter\AbstractFilter;
+use Encore\Admin\Grid\Filter\Between;
+use Encore\Admin\Grid\Filter\Date;
+use Encore\Admin\Grid\Filter\Day;
+use Encore\Admin\Grid\Filter\Equal;
+use Encore\Admin\Grid\Filter\Group;
+use Encore\Admin\Grid\Filter\Gt;
+use Encore\Admin\Grid\Filter\Hidden;
+use Encore\Admin\Grid\Filter\Ilike;
+use Encore\Admin\Grid\Filter\In;
+use Encore\Admin\Grid\Filter\Layout\Layout;
+use Encore\Admin\Grid\Filter\Like;
+use Encore\Admin\Grid\Filter\Lt;
+use Encore\Admin\Grid\Filter\Month;
+use Encore\Admin\Grid\Filter\NotEqual;
+use Encore\Admin\Grid\Filter\NotIn;
+use Encore\Admin\Grid\Filter\Scope;
+use Encore\Admin\Grid\Filter\Where;
+use Encore\Admin\Grid\Filter\Year;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Request;
 
 /**
  * Class Filter.
@@ -25,8 +44,9 @@ use Illuminate\Support\Facades\Request;
  * @method AbstractFilter     month($column, $label = '')
  * @method AbstractFilter     year($column, $label = '')
  * @method AbstractFilter     hidden($name, $value)
+ * @method AbstractFilter     group($column, $label = '', $builder = null)
  */
-class Filter
+class Filter implements Renderable
 {
     /**
      * @var Model
@@ -41,10 +61,7 @@ class Filter
     /**
      * @var array
      */
-    protected $supports = [
-        'equal', 'notEqual', 'ilike', 'like', 'gt', 'lt', 'between',
-        'where', 'in', 'notIn', 'date', 'day', 'month', 'year', 'hidden',
-    ];
+    protected static $supports = [];
 
     /**
      * If use id filter.
@@ -70,12 +87,53 @@ class Filter
     /**
      * @var string
      */
-    protected $view = 'admin::grid.filter';
+    protected $view = 'admin::filter.container';
 
     /**
      * @var string
      */
-    protected $filterModalId = 'filter-modal';
+    protected $filterID = 'filter-box';
+
+    /**
+     * @var string
+     */
+    protected $name = '';
+
+    /**
+     * @var bool
+     */
+    public $expand = false;
+
+    /**
+     * @var Collection
+     */
+    protected $scopes;
+
+    /**
+     * @var Layout
+     */
+    protected $layout;
+
+    /**
+     * Set this filter only in the layout.
+     *
+     * @var bool
+     */
+    protected $thisFilterLayoutOnly = false;
+
+    /**
+     * Columns of filter that are layout-only.
+     *
+     * @var array
+     */
+    protected $layoutOnlyFilterColumns = [];
+
+    /**
+     * Primary key of giving model.
+     *
+     * @var mixed
+     */
+    protected $primaryKey;
 
     /**
      * Create a new filter instance.
@@ -86,9 +144,20 @@ class Filter
     {
         $this->model = $model;
 
-        $pk = $this->model->eloquent()->getKeyName();
+        $this->primaryKey = $this->model->eloquent()->getKeyName();
 
-        $this->equal($pk, strtoupper($pk));
+        $this->initLayout();
+
+        $this->equal($this->primaryKey, strtoupper($this->primaryKey));
+        $this->scopes = new Collection();
+    }
+
+    /**
+     * Initialize filter layout.
+     */
+    protected function initLayout()
+    {
+        $this->layout = new Filter\Layout\Layout($this);
     }
 
     /**
@@ -106,25 +175,71 @@ class Filter
     }
 
     /**
-     * Set modalId of search form.
+     * Get grid model.
      *
-     * @param string $filterModalId
+     * @return Model
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
+
+    /**
+     * Set ID of search form.
+     *
+     * @param string $filterID
      *
      * @return $this
      */
-    public function setModalId($filterModalId)
+    public function setFilterID($filterID)
     {
-        $this->filterModalId = $filterModalId;
+        $this->filterID = $filterID;
 
         return $this;
     }
 
     /**
-     * Disable Id filter.
+     * Get filter ID.
+     *
+     * @return string
      */
-    public function disableIdFilter()
+    public function getFilterID()
     {
-        $this->useIdFilter = false;
+        return $this->filterID;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return $this
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        $this->setFilterID("{$this->name}-{$this->filterID}");
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Disable Id filter.
+     *
+     * @return $this
+     */
+    public function disableIdFilter(bool $disable = true)
+    {
+        $this->useIdFilter = !$disable;
+
+        return $this;
     }
 
     /**
@@ -133,9 +248,32 @@ class Filter
     public function removeIDFilterIfNeeded()
     {
         if (!$this->useIdFilter && !$this->idFilterRemoved) {
-            array_shift($this->filters);
+            $this->removeDefaultIDFilter();
+
+            $this->layout->removeDefaultIDFilter();
+
             $this->idFilterRemoved = true;
         }
+    }
+
+    /**
+     * Remove the default ID filter.
+     */
+    protected function removeDefaultIDFilter()
+    {
+        array_shift($this->filters);
+    }
+
+    /**
+     * Remove filter by filter id.
+     *
+     * @param mixed $id
+     */
+    protected function removeFilterByID($id)
+    {
+        $this->filters = array_filter($this->filters, function (AbstractFilter $filter) use ($id) {
+            return $filter->getId() != $id;
+        });
     }
 
     /**
@@ -150,6 +288,8 @@ class Filter
         $inputs = array_filter($inputs, function ($input) {
             return $input !== '' && !is_null($input);
         });
+
+        $this->sanitizeInputs($inputs);
 
         if (empty($inputs)) {
             return [];
@@ -166,32 +306,50 @@ class Filter
         $this->removeIDFilterIfNeeded();
 
         foreach ($this->filters() as $filter) {
-            $con = $filter->condition($params);
-
-            if(!is_null($con) && is_array($con)) {
-                foreach ($con as $key => $value) {
-                    if(!is_null($con[$key]) && is_array($con[$key])) {
-                        if($con[$key] == '$$')
-                            $con[$key] = '';
-                        foreach ($con[$key] as $key2 => $value2) {
-                            if($con[$key][$key2] == '$$')
-                                $con[$key][$key2] = '';
-                            if(!is_null($con[$key][$key2]) && is_array($con[$key][$key2])) {
-                                foreach ($con[$key][$key2] as $key3 => $value3) {
-                                    if($con[$key][$key2][$key3] == '$$')
-                                        $con[$key][$key2][$key3] = '';
-                                    //print_r($con[$key][$key2][$key3]);
-                                }
-                            }
-                        }
-                    }
-
-                }
+            if (in_array($column = $filter->getColumn(), $this->layoutOnlyFilterColumns)) {
+                $filter->default(array_get($params, $column));
+            } else {
+                $conditions[] = $filter->condition($params);
             }
-            $conditions[] = $con;
         }
-        //print_r($conditions);
-        return array_filter($conditions);
+
+        return tap(array_filter($conditions), function ($conditions) {
+            if (!empty($conditions)) {
+                $this->expand();
+            }
+        });
+    }
+
+    /**
+     * @param $inputs
+     *
+     * @return array
+     */
+    protected function sanitizeInputs(&$inputs)
+    {
+        if (!$this->name) {
+            return $inputs;
+        }
+
+        $inputs = collect($inputs)->filter(function ($input, $key) {
+            return starts_with($key, "{$this->name}_");
+        })->mapWithKeys(function ($val, $key) {
+            $key = str_replace("{$this->name}_", '', $key);
+
+            return [$key => $val];
+        })->toArray();
+    }
+
+    /**
+     * Set this filter layout only.
+     *
+     * @return $this
+     */
+    public function layoutOnly()
+    {
+        $this->thisFilterLayoutOnly = true;
+
+        return $this;
     }
 
     /**
@@ -203,7 +361,14 @@ class Filter
      */
     protected function addFilter(AbstractFilter $filter)
     {
+        $this->layout->addFilter($filter);
+
         $filter->setParent($this);
+
+        if ($this->thisFilterLayoutOnly) {
+            $this->thisFilterLayoutOnly = false;
+            $this->layoutOnlyFilterColumns[] = $filter->getColumn();
+        }
 
         return $this->filters[] = $filter;
     }
@@ -231,13 +396,100 @@ class Filter
     }
 
     /**
-     * Execute the filter with conditions.
+     * @param string $key
+     * @param string $label
+     *
+     * @return mixed
+     */
+    public function scope($key, $label = '')
+    {
+        return tap(new Scope($key, $label), function (Scope $scope) {
+            return $this->scopes->push($scope);
+        });
+    }
+
+    /**
+     * Get all filter scopes.
+     *
+     * @return Collection
+     */
+    public function getScopes()
+    {
+        return $this->scopes;
+    }
+
+    /**
+     * Get current scope.
+     *
+     * @return Scope|null
+     */
+    public function getCurrentScope()
+    {
+        $key = request(Scope::QUERY_NAME);
+
+        return $this->scopes->first(function ($scope) use ($key) {
+            return $scope->key == $key;
+        });
+    }
+
+    /**
+     * Get scope conditions.
      *
      * @return array
      */
-    public function execute()
+    protected function scopeConditions()
     {
-        return $this->model->addConditions($this->conditions())->buildData();
+        if ($scope = $this->getCurrentScope()) {
+            return $scope->condition();
+        }
+
+        return [];
+    }
+
+    /**
+     * Add a new layout column.
+     *
+     * @param int      $width
+     * @param \Closure $closure
+     *
+     * @return $this
+     */
+    public function column($width, \Closure $closure)
+    {
+        $width = $width < 1 ? round(12 * $width) : $width;
+
+        $this->layout->column($width, $closure);
+
+        return $this;
+    }
+
+    /**
+     * Expand filter container.
+     *
+     * @return $this
+     */
+    public function expand()
+    {
+        $this->expand = true;
+
+        return $this;
+    }
+
+    /**
+     * Execute the filter with conditions.
+     *
+     * @param bool $toArray
+     *
+     * @return array|Collection|mixed
+     */
+    public function execute($toArray = true)
+    {
+        $conditions = array_merge(
+            $this->conditions(),
+            $this->scopeConditions()
+        );
+
+        return $this->model->addConditions($conditions)->buildData($toArray);
     }
 
     /**
@@ -248,7 +500,12 @@ class Filter
      */
     public function chunk(callable $callback, $count = 100)
     {
-        return $this->model->addConditions($this->conditions())->chunk($callback, $count);
+        $conditions = array_merge(
+            $this->conditions(),
+            $this->scopeConditions()
+        );
+
+        return $this->model->addConditions($conditions)->chunk($callback, $count);
     }
 
     /**
@@ -264,30 +521,12 @@ class Filter
             return '';
         }
 
-        $script = <<<'EOT'
-
-$("#filter-modal .submit").click(function () {
-    $("#filter-modal").modal('toggle');
-    $('body').removeClass('modal-open');
-    $('.modal-backdrop').remove();
-});
-
-EOT;
-        Admin::script($script);
-        $filters = array();
-        $filters2 = array();
-        foreach ($this->filters as $filter) {
-            if($filter->isInline())
-                $filters2[] = $filter;
-            else
-                $filters[] = $filter;
-        }
         return view($this->view)->with([
-            'action'  => $this->action ?: $this->urlWithoutFilters(),
-            'filters' => $filters,
-            'modalId' => $this->filterModalId,
-            'filters2' => $filters2,
-        ]);
+            'action'   => $this->action ?: $this->urlWithoutFilters(),
+            'layout'   => $this->layout,
+            'filterID' => $this->filterID,
+            'expand'   => $this->expand,
+        ])->render();
     }
 
     /**
@@ -295,26 +534,120 @@ EOT;
      *
      * @return string
      */
-    protected function urlWithoutFilters()
+    public function urlWithoutFilters()
     {
-        $columns = [];
+        /** @var Collection $columns */
+        $columns = collect($this->filters)->map->getColumn()->flatten();
 
-        /** @var Filter\AbstractFilter $filter * */
-        foreach ($this->filters as $filter) {
-            $columns[] = $filter->getColumn();
+        $pageKey = 'page';
+
+        if ($gridName = $this->model->getGrid()->getName()) {
+            $pageKey = "{$gridName}_{$pageKey}";
         }
 
-        /** @var \Illuminate\Http\Request $request * */
-        $request = Request::instance();
+        $columns->push($pageKey);
+
+        $groupNames = collect($this->filters)->filter(function ($filter) {
+            return $filter instanceof Group;
+        })->map(function (AbstractFilter $filter) {
+            return "{$filter->getId()}_group";
+        });
+
+        return $this->fullUrlWithoutQuery(
+            $columns->merge($groupNames)
+        );
+    }
+
+    /**
+     * Get url without scope queryString.
+     *
+     * @return string
+     */
+    public function urlWithoutScopes()
+    {
+        return $this->fullUrlWithoutQuery(Scope::QUERY_NAME);
+    }
+
+    /**
+     * Get full url without query strings.
+     *
+     * @param Arrayable|array|string $keys
+     *
+     * @return string
+     */
+    protected function fullUrlWithoutQuery($keys)
+    {
+        if ($keys instanceof Arrayable) {
+            $keys = $keys->toArray();
+        }
+
+        $keys = (array) $keys;
+
+        $request = request();
 
         $query = $request->query();
-        array_forget($query, $columns);
+        array_forget($query, $keys);
 
         $question = $request->getBaseUrl().$request->getPathInfo() == '/' ? '/?' : '?';
 
         return count($request->query()) > 0
             ? $request->url().$question.http_build_query($query)
             : $request->fullUrl();
+    }
+
+    /**
+     * @param string $name
+     * @param string $filterClass
+     */
+    public static function extend($name, $filterClass)
+    {
+        if (!is_subclass_of($filterClass, AbstractFilter::class)) {
+            throw new \InvalidArgumentException("The class [$filterClass] must be a type of ".AbstractFilter::class.'.');
+        }
+
+        static::$supports[$name] = $filterClass;
+    }
+
+    /**
+     * @param string $abstract
+     * @param array  $arguments
+     *
+     * @return AbstractFilter
+     */
+    public function resolveFilter($abstract, $arguments)
+    {
+        if (isset(static::$supports[$abstract])) {
+            return new static::$supports[$abstract](...$arguments);
+        }
+    }
+
+    /**
+     * Register builtin filters.
+     */
+    public static function registerFilters()
+    {
+        $filters = [
+            'equal'    => Equal::class,
+            'notEqual' => NotEqual::class,
+            'ilike'    => Ilike::class,
+            'like'     => Like::class,
+            'gt'       => Gt::class,
+            'lt'       => Lt::class,
+            'between'  => Between::class,
+            'group'    => Group::class,
+            'where'    => Where::class,
+            'in'       => In::class,
+            'notIn'    => NotIn::class,
+            'date'     => Date::class,
+            'day'      => Day::class,
+            'month'    => Month::class,
+            'year'     => Year::class,
+            'hidden'   => Hidden::class,
+        ];
+
+        foreach ($filters as $name => $filterClass) {
+            static::extend($name, $filterClass);
+        }
     }
 
     /**
@@ -327,22 +660,10 @@ EOT;
      */
     public function __call($method, $arguments)
     {
-        if (in_array($method, $this->supports)) {
-            $className = '\\Encore\\Admin\\Grid\\Filter\\'.ucfirst($method);
-
-            return $this->addFilter(new $className(...$arguments));
+        if ($filter = $this->resolveFilter($method, $arguments)) {
+            return $this->addFilter($filter);
         }
 
         return $this;
-    }
-
-    /**
-     * Get the string contents of the filter view.
-     *
-     * @return \Illuminate\View\View|string
-     */
-    public function __toString()
-    {
-        return $this->render();
     }
 }

@@ -26,7 +26,7 @@ class Menu extends Model
      *
      * @var array
      */
-    protected $fillable = ['parent_id', 'order', 'title', 'icon', 'uri'];
+    protected $fillable = ['parent_id', 'order', 'title', 'icon', 'uri', 'permission'];
 
     /**
      * Create a new Eloquent model instance.
@@ -63,10 +63,22 @@ class Menu extends Model
      */
     public function allNodes() : array
     {
-        $orderColumn = DB::getQueryGrammar()->wrap($this->orderColumn);
+        $connection = config('admin.database.connection') ?: config('database.default');
+        $orderColumn = DB::connection($connection)->getQueryGrammar()->wrap($this->orderColumn);
+
         $byOrder = $orderColumn.' = 0,'.$orderColumn;
 
         return static::with('roles')->orderByRaw($byOrder)->get()->toArray();
+    }
+
+    /**
+     * determine if enable menu bind permission.
+     *
+     * @return bool
+     */
+    public function withPermission()
+    {
+        return (bool) config('admin.menu_bind_permission');
     }
 
     /**
