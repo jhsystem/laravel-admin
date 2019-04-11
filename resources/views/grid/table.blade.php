@@ -26,7 +26,7 @@
 
     <!-- /.box-header -->
     <div class="box-body table-responsive no-padding">
-        <table class="table table-hover">
+        <table class="table table-hover" @if($grid->getWidth()) style="width: {{ $grid->getWidth() }}px;" @endif>
             <thead>
                 <tr>
                     @foreach($grid->visibleColumns() as $column)

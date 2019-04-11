@@ -175,6 +175,7 @@ class Grid
      */
     protected $footer;
 
+    public $width = 0;
     /**
      * Initialization closure array.
      *
@@ -204,6 +205,16 @@ class Grid
         $this->handleExportRequest();
 
         $this->callInitCallbacks();
+    }
+
+    public function setWidth($width)
+    {
+        $this->width = $width;
+    }
+
+    public function getWidth()
+    {
+        return $this->width;
     }
 
     /**
