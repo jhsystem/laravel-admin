@@ -65,6 +65,7 @@ class HasMany extends Field
     protected $options = [
         'allowCreate' => true,
         'allowDelete' => true,
+        'e_title' => false,
     ];
 
     /**
@@ -665,5 +666,9 @@ EOT;
             'relationName' => $this->relationName,
             'options'      => $this->options,
         ]);
+    }
+
+    public function enableEmphasisTitle() {
+        $this->options['e_title'] = true;
     }
 }

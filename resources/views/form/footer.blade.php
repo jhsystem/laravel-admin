@@ -8,7 +8,7 @@
     <div class="col-md-{{$width['field']}}">
 
         @if(in_array('submit', $buttons))
-        <div class="btn-group pull-right">
+        <div class="text-center" style="margin-bottom: 20px;">
             <button type="submit" class="btn btn-primary">{{ trans('admin.submit') }}</button>
         </div>
 
