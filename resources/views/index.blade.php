@@ -15,7 +15,41 @@
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-
+<style>
+    .skin-blue-light .sidebar-menu>li:hover>a, .skin-blue-light .sidebar-menu>li.active>a,.skin-blue-light .sidebar a {
+        color:white;
+        background: #398eba;
+        font-size: 14px;
+    }
+    .skin-blue-light .treeview-menu>li.active>a, .skin-blue-light .treeview-menu>li>a:hover {
+        color:white;
+        background:#bbbbbb;
+    }
+    .skin-blue-light .treeview-menu>li>a {
+        color:black;
+        background: white;
+    }
+    thead {
+        color: white;
+        background: #398eba;
+    }
+    th {
+        text-align: center;
+    }
+    body {
+        font-size: 12px;
+    }
+    .box-body {
+        padding: 4px;
+    }
+    .form-group {
+        margin-bottom: 7px;
+    }
+    .box-header .box-title {
+        font-size: 14px;
+        font-weight: 600;
+    }
+</style>
 </head>
 
 <body class="hold-transition {{config('admin.skin')}} {{join(' ', config('admin.layout'))}}">

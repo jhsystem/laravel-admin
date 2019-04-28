@@ -26,7 +26,7 @@
 
     <!-- /.box-header -->
     <div class="box-body table-responsive no-padding">
-        <table class="table table-hover" @if($grid->getWidth()) style="width: {{ $grid->getWidth() }}px;" @endif>
+        <table class="table table-hover table-bordered" @if($grid->getWidth()) style="width: {{ $grid->getWidth() }}px;" @endif>
             <thead>
                 <tr>
                     @foreach($grid->visibleColumns() as $column)
@@ -37,7 +37,7 @@
 
             <tbody>
                 @foreach($grid->rows() as $row)
-                <tr {!! $row->getRowAttributes() !!}>
+                <tr {!! $row->getRowAttributes() !!} ">
                     @foreach($grid->visibleColumnNames() as $name)
                     <td {!! $row->getColumnAttributes($name) !!}>
                         {!! $row->column($name) !!}
@@ -55,5 +55,10 @@
     <div class="box-footer clearfix">
         {!! $grid->paginator() !!}
     </div>
+        <script>
+            $('tr').click(function () {
+                window.location.href = $(this).find('a:first-child').attr('href');
+            })
+        </script>
     <!-- /.box-body -->
 </div>
