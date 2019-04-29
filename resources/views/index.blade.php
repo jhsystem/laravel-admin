@@ -29,7 +29,7 @@
         color:black;
         background: white;
     }
-    thead {
+    #main_data thead {
         color: white;
         background: #398eba;
     }

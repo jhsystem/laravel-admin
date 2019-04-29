@@ -360,7 +360,7 @@ abstract class AbstractFilter
      *
      * @return Presenter
      */
-    protected function presenter()
+    public function presenter()
     {
         return $this->presenter;
     }

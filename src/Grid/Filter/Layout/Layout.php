@@ -93,4 +93,8 @@ class Layout
             ->filters()
             ->shift();
     }
+
+    public function isFirstIsSearch() {
+        return $this->parent->isFirstIsSearch();
+    }
 }

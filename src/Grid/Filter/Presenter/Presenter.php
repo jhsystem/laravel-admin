@@ -70,4 +70,27 @@ abstract class Presenter
 
         return $this;
     }
+
+    protected $width = 2;
+    public function getWidth() {
+        return $this->width;
+    }
+
+    protected $labelWidth = 80;
+    public function getLabelWidth() {
+        return $this->labelWidth;
+    }
+
+    public function setLabelWidth($n) {
+        $this->labelWidth = $n;
+    }
+
+    protected $pixelWidth = 0;
+    public function getPixelWidth() {
+        return $this->pixelWidth;
+    }
+
+    public function setPixelWidth($n) {
+        $this->pixelWidth = $n;
+    }
 }

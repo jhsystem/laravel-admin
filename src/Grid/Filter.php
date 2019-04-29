@@ -135,6 +135,16 @@ class Filter implements Renderable
      */
     protected $primaryKey;
 
+    protected $isFirstIsSearch = true;
+
+    public function isFirstIsSearch()
+    {
+        return $this->isFirstIsSearch;
+    }
+
+    public function disableFirstIsSearch() {
+        $this->isFirstIsSearch = false;
+    }
     /**
      * Create a new filter instance.
      *
