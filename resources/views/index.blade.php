@@ -52,7 +52,7 @@
         font-size: 14px;
         font-weight: 600;
     }
-    tr {
+    tbody tr {
         cursor: pointer;
     }
 </style>

@@ -93,6 +93,14 @@ class Table extends Widget implements Renderable
         return $this;
     }
 
+    protected $isMultiLineHeader = false;
+    public function isMultiLineHeader() {
+        return $this->isMultiLineHeader;
+    }
+
+    public function setMultiLineHeader() {
+        $this->isMultiLineHeader = true;
+    }
     /**
      * Render the table.
      *
@@ -105,6 +113,7 @@ class Table extends Widget implements Renderable
             'rows'       => $this->rows,
             'style'      => $this->style,
             'attributes' => $this->formatAttributes(),
+            'multi_line_header' => $this->isMultiLineHeader,
         ];
 
         return view($this->view, $vars)->render();

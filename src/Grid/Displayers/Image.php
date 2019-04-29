@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Image extends AbstractDisplayer
 {
-    public function display($server = '', $width = 200, $height = 200)
+    public function display($server = '', $width = 200, $height = 104)
     {
         if ($this->value instanceof Arrayable) {
             $this->value = $this->value->toArray();
@@ -21,8 +21,8 @@ class Image extends AbstractDisplayer
             } else {
                 $src = Storage::disk(config('admin.upload.disk'))->url($path);
             }
-
-            return "<img src='$src' style='max-width:{$width}px;max-height:{$height}px' class='img img-thumbnail' />";
+$dd = $this->getKey();
+            return "<img src='$src' style='max-width:{$width}px;height:{$height}px' class='img img-thumbnail' for='$dd' />";
         })->implode('&nbsp;');
     }
 }
