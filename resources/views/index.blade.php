@@ -16,7 +16,7 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 <style>
-    .skin-blue-light .sidebar-menu>li:hover>a, .skin-blue-light .sidebar-menu>li.active>a,.skin-blue-light .sidebar a {
+    .skin-blue-light .sidebar-menu>li:hover>a, .skin-blue-light .sidebar-menu>li.active>a,.skin-blue-light .sidebar .sidebar-menu>.treeview>a {
         color:white;
         background: #398eba;
         font-size: 14px;
@@ -34,6 +34,9 @@
         background: #398eba;
     }
     th {
+        text-align: center;
+    }
+    td {
         text-align: center;
     }
     body {
