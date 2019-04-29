@@ -1,6 +1,6 @@
 <div class="box box-info">
     <div class="box-header with-border">
-        <h3 class="box-title">{{ $form->title() }}</h3>
+        <h3 class="box-title"><span class="fa fa-bars" ></span> {{ $form->title() }}</h3>
 
         <div class="box-tools">
             {!! $form->renderTools() !!}
