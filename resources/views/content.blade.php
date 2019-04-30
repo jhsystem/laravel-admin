@@ -3,7 +3,7 @@
 @section('content')
     <section class="content-header">
         <h1>
-            {{ $header ?: trans('admin.title') }}
+            <i class="fa fa-folder-open-o"></i> {{ $header ?: trans('admin.title') }}
             <small>{{ $description ?: trans('admin.description') }}</small>
         </h1>
 

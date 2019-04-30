@@ -1,3 +1,4 @@
+<div style="overflow: auto;">
 <table id="main_data" {!! $attributes !!}>
     <thead>
     @if($multi_line_header)
@@ -38,3 +39,4 @@
     @endforeach
     </tbody>
 </table>
+</div>
