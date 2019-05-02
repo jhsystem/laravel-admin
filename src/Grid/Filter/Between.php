@@ -72,17 +72,18 @@ class Between extends AbstractFilter
             return;
         }
 
+        $this->query = 'whereRaw';
         if (!isset($value['start'])) {
-            return $this->buildCondition($this->column, '<=', $value['end']);
+            return $this->buildCondition("date($this->column)<='{$value['end']}''");
         }
 
         if (!isset($value['end'])) {
-            return $this->buildCondition($this->column, '>=', $value['start']);
+            return $this->buildCondition("date($this->column)<='{$value['start']}'");
         }
 
-        $this->query = 'whereBetween';
 
-        return $this->buildCondition($this->column, $this->value);
+
+        return $this->buildCondition("date($this->column) BETWEEN '{$value['start']}' AND '{$value['end']}'");
     }
 
     /**
