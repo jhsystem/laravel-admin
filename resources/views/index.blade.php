@@ -55,6 +55,16 @@
     tbody tr {
         cursor: pointer;
     }
+    .select2-container--default .select2-selection--single {
+        height: 27px;
+        padding: 4px 12px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 24px;
+    }
+    .input-group .form-control, .input-group-addon, .input-group-btn {
+        height: 27px;
+    }
 </style>
 </head>
 
