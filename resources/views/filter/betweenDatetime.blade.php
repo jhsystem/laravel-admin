@@ -1,5 +1,5 @@
 <div class="">
-    <label class="col-sm-1 control-label" style="padding-left: 5px;padding-right: 5px;width: {{$presenter->getLabelWidth()}}px">{{$label}}</label>
+    <label class="col-sm-{{$presenter->getLabelWidth()}} control-label" style="padding-left: 5px;padding-right: 5px;">{{$label}}</label>
     <div class="col-sm-8" style="width: 300px;padding-right: 5px;padding-left: 5px">
         <div class="input-group input-group-sm">
             <div class="input-group-addon">

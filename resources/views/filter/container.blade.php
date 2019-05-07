@@ -6,10 +6,8 @@
             <div class="col-xs-{{ $column->width() }}">
                 @if($layout->isFirstIsSearch())
                     <div class="form-group">
-                        <div class="col-xs-8">
-                            {!! $column->filters()[0]->render() !!}
-                        </div>
-                        <div class="form-group col-xs-4">
+                        {!! $column->filters()[0]->render() !!}
+                        <div class="form-group col-xs-3">
                             <div class="btn-group pull-left" style="margin-left: 10px;">
                                 <button class="btn btn-info submit btn-sm"><i
                                             class="fa fa-search"></i>&nbsp;&nbsp;{{ trans('admin.search') }}</button>
@@ -22,13 +20,11 @@
                     </div>
                 @endif
                 <div class="form-group">
-                    <div class="box-body">
                         <div class="form-row">
                             @for($i=($layout->isFirstIsSearch() ? 1: 0); $i < count($column->filters()); $i++)
                                 {!! $column->filters()[$i]->render() !!}
                             @endfor
                         </div>
-                    </div>
                 </div>
                 @endforeach
             </div>

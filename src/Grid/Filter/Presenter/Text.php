@@ -29,8 +29,8 @@ class Text extends Presenter
     public function __construct($placeholder = '')
     {
         $this->placeholder($placeholder);
-        $this->width = 11;
-        $this->labelWidth = 0;
+        $this->width = 8;
+        $this->labelWidth = 1;
     }
 
     /**
