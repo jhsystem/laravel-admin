@@ -57,7 +57,9 @@
     </div>
         <script>
             $('tr').click(function () {
-                window.location.href = $(this).find('a:first-child').attr('href');
+                var href = $(this).find('a:first-child').attr('href');
+                if(href)
+                    window.location.href = href;
             })
         </script>
     <!-- /.box-body -->
