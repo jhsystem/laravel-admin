@@ -47,6 +47,7 @@ abstract class AbstractExporter implements ExporterInterface
         return $this->grid->model()->eloquent()->getTable();
     }
 
+    
     /**
      * Get data with export query.
      *

@@ -454,6 +454,18 @@ abstract class AbstractFilter
 
         list($relation, $args[0]) = explode('.', $this->column);
 
+        if((strpos($args[0], 'created_at') !== false )) {
+            if(is_array($args[1]) and key_exists('end',$args[1])) {
+                $end = new \DateTime($args[1]['end']);
+                $end = $end->modify('+1 day');
+                $args[1]['end'] = $end->format('Y-m-d');
+            }else if($args[1] == '<=') {
+                $end = new \DateTime($args[2]);
+                $end = $end->modify('+1 day');
+                $args[2] = $end->format('Y-m-d');
+            }
+
+        }
         return ['whereHas' => [$relation, function ($relation) use ($args) {
             call_user_func_array([$relation, $this->query], $args);
         }]];

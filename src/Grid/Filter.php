@@ -319,7 +319,13 @@ class Filter implements Renderable
             if (in_array($column = $filter->getColumn(), $this->layoutOnlyFilterColumns)) {
                 $filter->default(array_get($params, $column));
             } else {
-                $conditions[] = $filter->condition($params);
+                $cond = $filter->condition($params);
+                if($cond and array_key_exists('whereBetween', $cond) and array_key_exists('end',$cond['whereBetween'][1])) {
+                    $end = new \DateTime($cond['whereBetween'][1]['end']);
+                    $end = $end->modify('+1 day');
+                    $cond['whereBetween'][1]['end'] = $end->format('Y-m-d');
+                }
+                $conditions[] = $cond;
             }
         }
 
