@@ -65,6 +65,12 @@
     .input-group .form-control, .input-group-addon, .input-group-btn {
         height: 27px;
     }
+    .sidebar-menu .treeview-menu>li>a {
+        padding-left: 0px;
+    }
+    .sidebar-menu>li>a {
+        padding-left: 0px;
+    }
 </style>
 </head>
 
