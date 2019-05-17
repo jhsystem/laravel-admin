@@ -71,6 +71,15 @@
     .sidebar-menu>li>a {
         padding-left: 0px;
     }
+    .main-sidebar, .left-side {
+        width: 240px;
+    }
+    .sidebar-menu>li>a>.fa, .sidebar-menu>li>a>.glyphicon, .sidebar-menu>li>a>.ion {
+        width: 10px
+    }
+    .sidebar-menu>li>a>.fa, .sidebar-menu>li>a>.glyphicon, .sidebar-menu>li>a>.ion {
+        right: 5px;
+    }
 </style>
 </head>
 
