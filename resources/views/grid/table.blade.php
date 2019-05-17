@@ -38,9 +38,14 @@
             <tbody>
                 @foreach($grid->rows() as $row)
                 <tr {!! $row->getRowAttributes() !!} >
+
                     @foreach($grid->visibleColumnNames() as $name)
-                    <td {!! $row->getColumnAttributes($name) !!}>
+                    <td {!! $row->getColumnAttributes($name) !!} @if($name == '__actions__'){{ "class='act'" }}@endif>
+                        @if($name == '__actions__')
+                            <div class="act">{!! $row->column($name) !!}</div>
+                        @else
                         {!! $row->column($name) !!}
+                        @endif
                     </td>
                     @endforeach
                 </tr>
@@ -56,11 +61,15 @@
         {!! $grid->paginator() !!}
     </div>
         <script>
+            $('div.act').click(function (e) {
+                e.stopPropagation();
+            });
             $('tr').click(function () {
                 var href = $(this).find('a:first-child');
                 if(href)
                     href[0].click();
-            })
+            });
+
         </script>
     <!-- /.box-body -->
 </div>
