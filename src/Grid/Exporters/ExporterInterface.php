@@ -9,5 +9,5 @@ interface ExporterInterface
      *
      * @return mixed
      */
-    public function export();
+    public function export($export_name);
 }

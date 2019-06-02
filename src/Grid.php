@@ -183,20 +183,21 @@ class Grid
      */
     protected static $initCallbacks = [];
 
+    private $export_name = null;
     /**
      * Create a new grid instance.
      *
      * @param Eloquent $model
      * @param Closure  $builder
      */
-    public function __construct(Eloquent $model, Closure $builder = null)
+    public function __construct(Eloquent $model, $export_name = null, Closure $builder = null)
     {
         $this->keyName = $model->getKeyName();
         $this->model = new Model($model);
         $this->columns = new Collection();
         $this->rows = new Collection();
         $this->builder = $builder;
-
+        $this->export_name = $export_name;
         $this->model()->setGrid($this);
 
         $this->setupTools();
@@ -284,7 +285,7 @@ class Grid
         }
 
         if ($forceExport) {
-            $this->getExporter($scope)->export();
+            $this->getExporter($scope)->export($this->export_name);
         }
     }
 

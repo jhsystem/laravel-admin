@@ -101,5 +101,5 @@ abstract class AbstractExporter implements ExporterInterface
     /**
      * {@inheritdoc}
      */
-    abstract public function export();
+    abstract public function export($export_name);
 }
