@@ -453,7 +453,8 @@ abstract class AbstractFilter
         $args = func_get_args();
 
         list($relation, $args[0]) = explode('.', $this->column);
-
+        if($relation == "fuel_measures")
+            $args[0] = $this->column;
         if((strpos($args[0], 'created_at') !== false )) {
             if(is_array($args[1]) and key_exists('end',$args[1])) {
                 $end = new \DateTime($args[1]['end']);
